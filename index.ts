@@ -1,7 +1,6 @@
 
 import axios from 'axios'
 import * as fs from 'fs';
-import { Set } from 'typescript';
 
 
 const axiosInstance = axios.create({});
@@ -17,13 +16,18 @@ const EventContext: Manifestation = {
 
 (async()=>{
     // script need to scrape data
-
+    console.log(`***Sending requests to collect the data from: ${EventContext.origin}`)
     const AllManifestationArray: Map<string,any> = new Map();
     let numberOfItems: Number = 0;
 
     const NUMBER_OF_MONTH = 13
+    /**
+     * Collect the data from specific API by sending requests for different months
+     * we use one un-existing number to brake the server *()
+     */
     for(let month=0; month < NUMBER_OF_MONTH; month++){
         const eventList:any = await getManifestationData(month);
+        console.log(`***consuming for month: ${month}`)
         eventList.data.items.forEach((eventItem:any) => {
             AllManifestationArray.set(eventItem.title, eventItem)
         });
@@ -40,7 +44,7 @@ const EventContext: Manifestation = {
     },replacer))
 
     console.log("Items collected: ",numberOfItems)
-    console.log("Execute")
+    console.log("Executed")
 
 })()
 
@@ -53,9 +57,12 @@ function getManifestationData(month:any){
             url: EventContext.origin,
             // params: { category: 'all', count: '2'},
             headers: {
+                'Accept': 'application/json, text/javascript, */*; q=0.01',
                 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
                 'Accept-Encoding': "gzip, deflate, br",
-                'Origin': 'https://www.serbia.travel'
+                'Accept-Language': 'en,en-GB;q=0.9,en-US;q=0.8,sr;q=0.7,bs;q=0.6,hr;q=0.5',
+                'Origin': 'https://www.serbia.travel',
+                'Referer': 'https://www.serbia.travel/kalendar',
             },
             data: {
                 json: 1,
@@ -63,8 +70,8 @@ function getManifestationData(month:any){
                 datestart: null,
                 dateend: null,
                 month: month,
-                // city: "Сви градови",
-                // category: "Све"
+                city: "Сви градови",
+                category: "Све"
             }
         };
         axiosInstance.request({

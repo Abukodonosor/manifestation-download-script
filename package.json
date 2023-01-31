@@ -4,7 +4,7 @@
   "description": "Fetch the data from serbia travel site",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "collect": "tsc ./index.ts && node ./index.js"
   },
   "author": "",
   "license": "ISC",

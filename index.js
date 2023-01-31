@@ -58,6 +58,8 @@ var EventContext = {
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
+                // script need to scrape data
+                console.log("***Sending requests to collect the data from: ".concat(EventContext.origin));
                 AllManifestationArray = new Map();
                 numberOfItems = 0;
                 NUMBER_OF_MONTH = 13;
@@ -68,6 +70,7 @@ var EventContext = {
                 return [4 /*yield*/, getManifestationData(month)];
             case 2:
                 eventList = _a.sent();
+                console.log("***consuming for month: ".concat(month));
                 eventList.data.items.forEach(function (eventItem) {
                     AllManifestationArray.set(eventItem.title, eventItem);
                 });
@@ -84,7 +87,7 @@ var EventContext = {
                     manifestations: AllManifestationArray
                 }, replacer));
                 console.log("Items collected: ", numberOfItems);
-                console.log("Execute");
+                console.log("Executed");
                 return [2 /*return*/];
         }
     });
@@ -96,16 +99,21 @@ function getManifestationData(month) {
             url: EventContext.origin,
             // params: { category: 'all', count: '2'},
             headers: {
+                'Accept': 'application/json, text/javascript, */*; q=0.01',
                 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
                 'Accept-Encoding': "gzip, deflate, br",
-                'Origin': 'https://www.serbia.travel'
+                'Accept-Language': 'en,en-GB;q=0.9,en-US;q=0.8,sr;q=0.7,bs;q=0.6,hr;q=0.5',
+                'Origin': 'https://www.serbia.travel',
+                'Referer': 'https://www.serbia.travel/kalendar'
             },
             data: {
                 json: 1,
                 perpage: 30,
                 datestart: null,
                 dateend: null,
-                month: month
+                month: month,
+                city: "Сви градови",
+                category: "Све"
             }
         };
         axiosInstance.request(__assign({}, options)).then(function (result) {
