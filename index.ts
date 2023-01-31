@@ -43,7 +43,7 @@ const TransformationObject:any = {
     const AllManifestationArray: Map<string,any> = new Map();
     let numberOfItems: Number = 0;
 
-    const NUMBER_OF_MONTH = 13
+    const NUMBER_OF_MONTH = 1
     /**
      * Collect the data from specific API by sending requests for different months
      * we use one un-existing number to brake the server *()
@@ -92,13 +92,14 @@ function getManifestationData(month:any){
                 'Accept-Language': 'en,en-GB;q=0.9,en-US;q=0.8,sr;q=0.7,bs;q=0.6,hr;q=0.5',
                 'Origin': 'https://www.serbia.travel',
                 'Referer': 'https://www.serbia.travel/kalendar',
+                'Cookie': 'alreadyvisited=1'
             },
             data: {
                 json: 1,
                 perpage: 30,
-                datestart: null,
-                dateend: null,
-                month: month,
+                datestart: "",
+                dateend: "",
+                month: "",
                 city: "Сви градови",
                 category: "Све"
             }

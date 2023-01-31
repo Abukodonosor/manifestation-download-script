@@ -84,7 +84,7 @@ var TransformationObject = {
                 console.log("***Sending requests to collect the data from: ".concat(EventContext.origin));
                 AllManifestationArray = new Map();
                 numberOfItems = 0;
-                NUMBER_OF_MONTH = 13;
+                NUMBER_OF_MONTH = 1;
                 month = 0;
                 _a.label = 1;
             case 1:
@@ -131,14 +131,15 @@ function getManifestationData(month) {
                 'Accept-Encoding': "gzip, deflate, br",
                 'Accept-Language': 'en,en-GB;q=0.9,en-US;q=0.8,sr;q=0.7,bs;q=0.6,hr;q=0.5',
                 'Origin': 'https://www.serbia.travel',
-                'Referer': 'https://www.serbia.travel/kalendar'
+                'Referer': 'https://www.serbia.travel/kalendar',
+                'Cookie': 'alreadyvisited=1'
             },
             data: {
                 json: 1,
                 perpage: 30,
-                datestart: null,
-                dateend: null,
-                month: month,
+                datestart: "",
+                dateend: "",
+                month: "",
                 city: "Сви градови",
                 category: "Све"
             }
