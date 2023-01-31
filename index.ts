@@ -13,6 +13,29 @@ const EventContext: Manifestation = {
     origin: 'https://www.serbia.travel/kalendar'
 };
 
+const TransformationObject:any = {
+    category: '',
+    photo: `https://www.serbia.travel`,
+    eventDate: '',
+    realEventDate:{
+        from: '',
+        to: '',
+    },
+    title: '',
+    intro: '',
+    intro2: '',
+    place: 'Панчево',
+    contact: '',
+    introExpanded: '',
+    // custom keys
+    map: {
+        cordX: '',
+        cordY: ''
+    },
+    englishCategory: '',
+    time: '',
+
+};
 
 (async()=>{
     // script need to scrape data
@@ -29,7 +52,13 @@ const EventContext: Manifestation = {
         const eventList:any = await getManifestationData(month);
         console.log(`***consuming for month: ${month}`)
         eventList.data.items.forEach((eventItem:any) => {
-            AllManifestationArray.set(eventItem.title, eventItem)
+            // custom 
+            const newItem = transformer({
+                photo: 'https://www.serbia.travel/' + eventItem.photo
+            },TransformationObject, eventItem)
+
+            // add value to the specific dataset
+            AllManifestationArray.set(eventItem.title, newItem)
         });
 
         numberOfItems += eventList.data.items.length
@@ -41,7 +70,7 @@ const EventContext: Manifestation = {
     // write file to use the parsed data
     fs.writeFileSync('manifestations.json',JSON.stringify({
         manifestations: AllManifestationArray
-    },replacer))
+    }, replacer))
 
     console.log("Items collected: ",numberOfItems)
     console.log("Executed")
@@ -82,6 +111,20 @@ function getManifestationData(month:any){
             reject(error)
         })
     })
+}
+
+/**
+ * 
+ * @param templateObject - object which contain key of structure
+ * @param actualData - actual data keys
+ * @returns 
+ */
+function transformer(patch:any, templateObject:any, actualData:any){
+    return {
+        ...templateObject,
+        ...actualData,
+        ...patch
+    }
 }
 
 function replacer(key:any, value:any) {

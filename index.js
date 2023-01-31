@@ -53,6 +53,28 @@ var axiosInstance = axios_1["default"].create({});
 var EventContext = {
     origin: 'https://www.serbia.travel/kalendar'
 };
+var TransformationObject = {
+    category: '',
+    photo: "https://www.serbia.travel",
+    eventDate: '',
+    realEventDate: {
+        from: '',
+        to: ''
+    },
+    title: '',
+    intro: '',
+    intro2: '',
+    place: 'Панчево',
+    contact: '',
+    introExpanded: '',
+    // custom keys
+    map: {
+        cordX: '',
+        cordY: ''
+    },
+    englishCategory: '',
+    time: ''
+};
 (function () { return __awaiter(void 0, void 0, void 0, function () {
     var AllManifestationArray, numberOfItems, NUMBER_OF_MONTH, month, eventList;
     return __generator(this, function (_a) {
@@ -72,7 +94,12 @@ var EventContext = {
                 eventList = _a.sent();
                 console.log("***consuming for month: ".concat(month));
                 eventList.data.items.forEach(function (eventItem) {
-                    AllManifestationArray.set(eventItem.title, eventItem);
+                    // custom 
+                    var newItem = transformer({
+                        photo: 'https://www.serbia.travel/' + eventItem.photo
+                    }, TransformationObject, eventItem);
+                    // add value to the specific dataset
+                    AllManifestationArray.set(eventItem.title, newItem);
                 });
                 numberOfItems += eventList.data.items.length;
                 _a.label = 3;
@@ -122,6 +149,15 @@ function getManifestationData(month) {
             reject(error);
         });
     });
+}
+/**
+ *
+ * @param templateObject - object which contain key of structure
+ * @param actualData - actual data keys
+ * @returns
+ */
+function transformer(patch, templateObject, actualData) {
+    return __assign(__assign(__assign({}, templateObject), actualData), patch);
 }
 function replacer(key, value) {
     if (value instanceof Map) {
