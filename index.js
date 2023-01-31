@@ -50,40 +50,67 @@ exports.__esModule = true;
 var axios_1 = require("axios");
 var fs = require("fs");
 var axiosInstance = axios_1["default"].create({});
+/**
+ * Configuration file for data collecting
+ */
 var EventContext = {
-    origin: 'https://www.serbia.travel/kalendar'
-};
-var TransformationObject = {
-    category: '',
-    photo: "https://www.serbia.travel",
-    eventDate: '',
-    realEventDate: {
-        from: '',
-        to: ''
+    base: 'https://www.serbia.travel/',
+    origin: 'https://www.serbia.travel/kalendar',
+    headers: {
+        'Accept': 'application/json, text/javascript, */*; q=0.01',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'Accept-Encoding': "gzip, deflate, br",
+        'Accept-Language': 'en,en-GB;q=0.9,en-US;q=0.8,sr;q=0.7,bs;q=0.6,hr;q=0.5',
+        'Origin': 'https://www.serbia.travel',
+        'Referer': 'https://www.serbia.travel/kalendar',
+        'Cookie': 'alreadyvisited=1'
     },
-    title: '',
-    intro: '',
-    intro2: '',
-    place: 'Панчево',
-    contact: '',
-    introExpanded: '',
-    // custom keys
-    map: {
-        cordX: '',
-        cordY: ''
+    /**
+     * Fake API data
+     */
+    body: {
+        json: 1,
+        perpage: 30,
+        datestart: "",
+        dateend: "",
+        month: "",
+        city: "Сви градови",
+        category: "Све"
     },
-    englishCategory: '',
-    time: ''
+    transformationLayer: {
+        'TO-DATA-SET-1': {
+            category: '',
+            photo: "https://www.serbia.travel",
+            eventDate: '',
+            realEventDate: {
+                from: '',
+                to: ''
+            },
+            title: '',
+            intro: '',
+            intro2: '',
+            place: 'Панчево',
+            contact: '',
+            introExpanded: '',
+            // custom keys
+            map: {
+                cordX: '',
+                cordY: ''
+            },
+            englishCategory: '',
+            time: ''
+        }
+    }
 };
 (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var AllManifestationArray, numberOfItems, NUMBER_OF_MONTH, month, eventList;
+    var AllManifestationArray, numberOfItemsAccumulator, NUMBER_OF_MONTH, month, eventList;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 // script need to scrape data
                 console.log("***Sending requests to collect the data from: ".concat(EventContext.origin));
                 AllManifestationArray = new Map();
-                numberOfItems = 0;
+                numberOfItemsAccumulator = 0;
                 NUMBER_OF_MONTH = 1;
                 month = 0;
                 _a.label = 1;
@@ -96,12 +123,12 @@ var TransformationObject = {
                 eventList.data.items.forEach(function (eventItem) {
                     // custom 
                     var newItem = transformer({
-                        photo: 'https://www.serbia.travel/' + eventItem.photo
-                    }, TransformationObject, eventItem);
+                        photo: EventContext.base + eventItem.photo
+                    }, EventContext.transformationLayer['TO-DATA-SET-1'], eventItem);
                     // add value to the specific dataset
                     AllManifestationArray.set(eventItem.title, newItem);
                 });
-                numberOfItems += eventList.data.items.length;
+                numberOfItemsAccumulator += eventList.data.items.length;
                 _a.label = 3;
             case 3:
                 month++;
@@ -113,7 +140,7 @@ var TransformationObject = {
                 fs.writeFileSync('manifestations.json', JSON.stringify({
                     manifestations: AllManifestationArray
                 }, replacer));
-                console.log("Items collected: ", numberOfItems);
+                console.log("Items collected: ", numberOfItemsAccumulator);
                 console.log("Executed");
                 return [2 /*return*/];
         }
@@ -124,25 +151,8 @@ function getManifestationData(month) {
         var options = {
             method: 'POST',
             url: EventContext.origin,
-            // params: { category: 'all', count: '2'},
-            headers: {
-                'Accept': 'application/json, text/javascript, */*; q=0.01',
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                'Accept-Encoding': "gzip, deflate, br",
-                'Accept-Language': 'en,en-GB;q=0.9,en-US;q=0.8,sr;q=0.7,bs;q=0.6,hr;q=0.5',
-                'Origin': 'https://www.serbia.travel',
-                'Referer': 'https://www.serbia.travel/kalendar',
-                'Cookie': 'alreadyvisited=1'
-            },
-            data: {
-                json: 1,
-                perpage: 30,
-                datestart: "",
-                dateend: "",
-                month: "",
-                city: "Сви градови",
-                category: "Све"
-            }
+            headers: EventContext.headers,
+            data: EventContext.body
         };
         axiosInstance.request(__assign({}, options)).then(function (result) {
             resolve(result);
