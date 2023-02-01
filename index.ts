@@ -42,26 +42,34 @@ const EventContext: Manifestation = {
     },
     transformationLayer: {
         'TO-DATA-SET-1': {
+            title: '',
             category: '',
             photo: `https://www.serbia.travel`,
             eventDate: '',
+            timestamp: new Date(),
             realEventDate:{
                 from: '',
                 to: '',
             },
-            title: '',
-            intro: '',
-            intro2: '',
             place: 'Панчево',
             contact: '',
+            intro: '',
+            intro2: '',
             introExpanded: '',
             // custom keys
-            map: {
-                cordX: '',
-                cordY: ''
+            coordinates: {
+                x: '',
+                y: ''
             },
-            englishCategory: '',
-            time: '',
+            eventInfoExtended: {
+                images: [""],
+                place: "",
+                city: "",
+                mails: [""],
+                phone: ["+381 (0)31 865 370"],
+                description: [""],
+                externalUrls: [],
+          }
         }
     }
 };
@@ -72,41 +80,47 @@ const EventContext: Manifestation = {
     const AllManifestationArray: Map<string,any> = new Map();
     let numberOfItemsAccumulator: Number = 0;
 
-    const NUMBER_OF_MONTH = 1
+    let categories:any = {}
     /**
      * Collect the data from specific API by sending requests for different months
      * we use one un-existing number to brake the server *()
      */
-    for(let month=0; month < NUMBER_OF_MONTH; month++){
-        const eventList:any = await getManifestationData(month);
-        console.log(`***consuming for month: ${month}`)
-        eventList.data.items.forEach((eventItem:any) => {
-            // custom 
-            const newItem = transformer({
-                photo: EventContext.base + eventItem.photo
-            },EventContext.transformationLayer['TO-DATA-SET-1'], eventItem)
+    const eventList:any = await getManifestationData();
+    console.log(`***consuming for month!!!`)
+    eventList.data.items.forEach((eventItem:any) => {
+        
+        categories[eventItem.category] = eventItem.category;
+        // custom 
+        const newItem = transformer({
+            photo: EventContext.base + eventItem.photo
+        },EventContext.transformationLayer['TO-DATA-SET-1'], eventItem)
 
-            // add value to the specific dataset
-            AllManifestationArray.set(eventItem.title, newItem)
-        });
+        // add value to the specific dataset
+        AllManifestationArray.set(eventItem.title, newItem)
+    });
 
-        numberOfItemsAccumulator += eventList.data.items.length
-    }
+    numberOfItemsAccumulator += eventList.data.items.length
+    
     
     // map data to extended structure 
     console.log(AllManifestationArray)
 
     // write file to use the parsed data
     fs.writeFileSync('manifestations.json',JSON.stringify({
+        platform:{
+            categories: {
+                ...categories
+            }
+        },
         manifestations: AllManifestationArray
     }, replacer))
-
+    
     console.log("Items collected: ",numberOfItemsAccumulator)
     console.log("Executed")
 
 })()
 
-function getManifestationData(month:any){
+function getManifestationData(){
     return new Promise((resolve,reject)=>{
         const options = {
             method: 'POST',

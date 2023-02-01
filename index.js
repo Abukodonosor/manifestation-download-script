@@ -79,31 +79,39 @@ var EventContext = {
     },
     transformationLayer: {
         'TO-DATA-SET-1': {
+            title: '',
             category: '',
             photo: "https://www.serbia.travel",
             eventDate: '',
+            timestamp: new Date(),
             realEventDate: {
                 from: '',
                 to: ''
             },
-            title: '',
-            intro: '',
-            intro2: '',
             place: 'Панчево',
             contact: '',
+            intro: '',
+            intro2: '',
             introExpanded: '',
             // custom keys
-            map: {
-                cordX: '',
-                cordY: ''
+            coordinates: {
+                x: '',
+                y: ''
             },
-            englishCategory: '',
-            time: ''
+            eventInfoExtended: {
+                images: [""],
+                place: "",
+                city: "",
+                mails: [""],
+                phone: ["+381 (0)31 865 370"],
+                description: [""],
+                externalUrls: []
+            }
         }
     }
 };
 (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var AllManifestationArray, numberOfItemsAccumulator, NUMBER_OF_MONTH, month, eventList;
+    var AllManifestationArray, numberOfItemsAccumulator, NUMBER_OF_MONTH, categories, eventList;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -112,15 +120,13 @@ var EventContext = {
                 AllManifestationArray = new Map();
                 numberOfItemsAccumulator = 0;
                 NUMBER_OF_MONTH = 1;
-                month = 0;
-                _a.label = 1;
+                categories = {};
+                return [4 /*yield*/, getManifestationData()];
             case 1:
-                if (!(month < NUMBER_OF_MONTH)) return [3 /*break*/, 4];
-                return [4 /*yield*/, getManifestationData(month)];
-            case 2:
                 eventList = _a.sent();
-                console.log("***consuming for month: ".concat(month));
+                console.log("***consuming for month!!!");
                 eventList.data.items.forEach(function (eventItem) {
+                    categories[eventItem.category] = eventItem.category;
                     // custom 
                     var newItem = transformer({
                         photo: EventContext.base + eventItem.photo
@@ -129,15 +135,15 @@ var EventContext = {
                     AllManifestationArray.set(eventItem.title, newItem);
                 });
                 numberOfItemsAccumulator += eventList.data.items.length;
-                _a.label = 3;
-            case 3:
-                month++;
-                return [3 /*break*/, 1];
-            case 4:
                 // map data to extended structure 
                 console.log(AllManifestationArray);
                 // write file to use the parsed data
                 fs.writeFileSync('manifestations.json', JSON.stringify({
+                    platform: {
+                        categories: __assign({}, categories
+                        //    "Cultural and traditional manifestations" : "Културне и традиционалне манифестације",
+                        )
+                    },
                     manifestations: AllManifestationArray
                 }, replacer));
                 console.log("Items collected: ", numberOfItemsAccumulator);
@@ -146,7 +152,7 @@ var EventContext = {
         }
     });
 }); })();
-function getManifestationData(month) {
+function getManifestationData() {
     return new Promise(function (resolve, reject) {
         var options = {
             method: 'POST',
